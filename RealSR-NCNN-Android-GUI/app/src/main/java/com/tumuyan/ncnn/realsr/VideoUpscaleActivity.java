@@ -33,8 +33,12 @@ public class VideoUpscaleActivity extends AppCompatActivity {
     private final String[] modelFolders = {
             "models-Real-ESRGAN",
             "models-RealeSR-general-v3",
-            "models-ESRGAN-Nomos8kSC"
+            "models-RealESRNet-x4plus",
+            "models-ESRGAN-Nomos8kSC",
+            "models-Real-ESRGAN-AnimeVideo-v3"
     };
+
+    private static final int ANIME_VIDEO_MODEL_INDEX = 4;
 
     private Uri selectedVideo;
     private String selectedName = "video";
@@ -150,21 +154,25 @@ public class VideoUpscaleActivity extends AppCompatActivity {
             baseName = baseName.substring(0, dot);
         }
         baseName = baseName.replaceAll("[^A-Za-z0-9._-]", "_");
-        int scale = scaleSpinner.getSelectedItemPosition() == 0 ? 4 : 2;
-        String suffix = scale == 4 ? "_RealSR_4x.mp4" : "_RealSR_2x.mp4";
+        int scalePosition = scaleSpinner.getSelectedItemPosition();
+        int scale = scalePosition == 0 ? 4 : (scalePosition == 1 ? 3 : 2);
+        String suffix = "_RealSR_" + scale + "x.mp4";
         File outputFile = new File(outputDir, baseName + suffix);
         if (outputFile.exists()) {
             String uniqueSuffix = "_" + System.currentTimeMillis();
             outputFile = new File(outputDir, baseName + uniqueSuffix + suffix);
         }
 
-        String modelFolder = modelFolders[modelSpinner.getSelectedItemPosition()];
+        int modelIndex = modelSpinner.getSelectedItemPosition();
+        String modelFolder = modelFolders[modelIndex];
+        int modelScale = modelIndex == ANIME_VIDEO_MODEL_INDEX ? scale : 4;
         Intent intent = new Intent(this, VideoUpscaleService.class);
         intent.setAction(VideoUpscaleService.ACTION_START);
         intent.putExtra(VideoUpscaleService.EXTRA_INPUT_URI, selectedVideo.toString());
         intent.putExtra(VideoUpscaleService.EXTRA_OUTPUT_PATH, outputFile.getAbsolutePath());
         intent.putExtra(VideoUpscaleService.EXTRA_MODEL_FOLDER, modelFolder);
         intent.putExtra(VideoUpscaleService.EXTRA_OUTPUT_SCALE, scale);
+        intent.putExtra(VideoUpscaleService.EXTRA_MODEL_SCALE, modelScale);
 
         ContextCompat.startForegroundService(this, intent);
         renderStatus(getString(R.string.video_processing), false, false, null);
