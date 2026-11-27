@@ -54,6 +54,17 @@ The APK bundles the full practical Real-ESRGAN general-image set plus a photo re
 | RealESRGAN General v3 | 4× | Compact general-scene model; useful on varied and compressed photographs. |
 | 4xNomos8kSC | 4× | Photo-trained restoration for realistic images. |
 
+The additional realistic-photo presets are:
+- 4xLSDIR — general realistic-image upscaling.
+- 4xLSDIRPlus — general-purpose variant.
+- 4xLSDIRPlusC — tuned for JPEG compression.
+- 4xLSDIRPlusN — clean inputs without added degradation.
+- 4xLSDIRPlusR — JPEG compression, noise and blur.
+- NMKD Siax CX — clean or mildly compressed JPEG inputs.
+- ClearRealityV1 — natural-looking realistic imagery; intended for relatively clear inputs.
+
+All of these are 4× models. The models are taken from the [TNTwise Universal NCNN Upscaler conversion bundle](https://github.com/TNTwise/Universal-NCNN-Upscaler/releases/tag/Realistic), with filenames normalized into the RealSR loader's x4.bin/x4.param layout. Model attribution and license notes are packaged in PHOTO_MODELS.txt. ClearRealityV1 is CC BY-NC-SA 4.0 (non-commercial); NMKD Siax CX is WTFPL; the LSDIR family is CC BY 4.0.
+
 The original Anime image-model folders are not added to the realistic-photo preset list. The photo models upscale and reconstruct plausible detail; they do not convert drawings or 3D renders into photographs.
 
 Model sources: official [Real-ESRGAN model zoo](https://github.com/xinntao/Real-ESRGAN/blob/master/docs/model_zoo.md), its [NCNN release](https://github.com/xinntao/Real-ESRGAN/releases/tag/v0.2.5.0), the [NCNN conversion of RealESRGAN_x2plus](https://huggingface.co/Hibernake/RealESRGAN_x2plus), the [RealESRNet NCNN conversion files](https://github.com/specializeddevel/image_enhancer_fx_gui/tree/main/models), and [4xNomos8kSC](https://github.com/Phhofm/models/tree/main/4xNomos8kSC). Upstream Real-ESRGAN weights are BSD-3-Clause; 4xNomos8kSC is CC BY 4.0.
