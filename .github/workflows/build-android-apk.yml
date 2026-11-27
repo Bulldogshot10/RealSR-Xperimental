@@ -97,7 +97,14 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
         with:
-          packages: platform-tools, platforms;android-36, build-tools;36.0.0
+          packages: ''
+
+      - name: Install Android SDK platform and build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;36.0.0"
+          sdkmanager --list_installed
 
       - name: Build debug APK
         working-directory: RealSR-NCNN-Android-GUI
