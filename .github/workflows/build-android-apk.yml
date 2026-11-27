@@ -255,19 +255,6 @@ jobs:
                    https://github.com/specializeddevel/image_enhancer_fx_gui/tree/main/models
                    https://github.com/Phhofm/models/tree/main/4xNomos8kSC
           EOF
-          Real-ESRGAN model bundle:
-          - RealESRGAN_x4plus (official NCNN release; BSD-3-Clause)
-          - RealESRGAN_x2plus (NCNN conversion of official weights; BSD-3-Clause)
-          - RealESRNet_x4plus (NCNN conversion of upstream MSE weights; see source repository)
-          - realesr-general-x4v3 (compact general-scene model)
-          - 4xNomos8kSC (Phhofm; CC BY 4.0)
-          - realesr-animevideov3 x2/x3/x4 (official NCNN release; anime video)
-          Sources: https://github.com/xinntao/Real-ESRGAN
-                   https://huggingface.co/Hibernake/RealESRGAN_x2plus
-                   https://github.com/specializeddevel/image_enhancer_fx_gui/tree/main/models
-                   https://github.com/Phhofm/models/tree/main/4xNomos8kSC
-          EOF
-
       - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
