@@ -969,6 +969,22 @@ public class MainActivity extends AppCompatActivity {
                     modelName += cmd.replaceFirst(".+\\s-c(\\s+)(\\S+)\\s.*", "-C$2");
                 if (cmd.contains(" -n "))
                     modelName += cmd.replaceFirst(".+\\s-n(\\s+)(\\S+)\\s.*", "-Noise$2");
+            } else if (cmd.startsWith("./resize-ncnn")) {
+                String resizeMode = cmd.replaceFirst(".*\\s-m\\s+(\\S+).*", "$1");
+                if ("perfectpixel".equalsIgnoreCase(resizeMode)) {
+                    String perfectPixelScale = cmd.replaceFirst(".*\\s-s\\s+(\\S+).*", "$1");
+                    if ("0".equals(perfectPixelScale)) {
+                        modelName = "PerfectPixel-Fix";
+                    } else if ("1".equals(perfectPixelScale)) {
+                        modelName = "PerfectPixel-Reduce";
+                    } else if ("5".equals(perfectPixelScale)) {
+                        modelName = "PerfectPixel-5x";
+                    } else {
+                        modelName = "PerfectPixel";
+                    }
+                } else {
+                    modelName = "Classical-" + resizeMode;
+                }
             } else if (cmd.matches(".+\\s-m(\\s+)(bicubic|bilinear|nearest|avir|de-nearest).*")) {
                 modelName = cmd.replaceFirst(".+\\s-m(\\s+)(bicubic|bilinear|nearest|lancir|avir|de-nearest).*",
                         "Classical-$2");
