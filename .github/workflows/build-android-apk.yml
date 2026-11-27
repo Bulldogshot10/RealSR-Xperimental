@@ -20,7 +20,6 @@ concurrency:
 env:
   ASSETS_URL: https://github.com/tumuyan/RealSR-NCNN-Android/releases/download/1.11.1/assets.zip
   NCNN_URL: https://github.com/Tencent/ncnn/releases/download/20250503/ncnn-20250503-android-vulkan-shared.zip
-  MODEL_BASE_URL: https://huggingface.co/tumuyan2/realsr-models/resolve/main
 
 jobs:
   build-apk:
@@ -42,7 +41,7 @@ jobs:
           set -euo pipefail
           curl --fail --location --retry 3 --retry-delay 2 "$ASSETS_URL" -o assets.zip
           curl --fail --location --retry 3 --retry-delay 2 "$NCNN_URL" -o ncnn-android-vulkan-shared.zip
-          unzip -q -o assets.zip -d RealSR-NCNN-Android-GUI/app/src/main/assets
+          unzip -q -o assets.zip -d RealSR-NCNN-Android-GUI/app/src/main
           unzip -q -o ncnn-android-vulkan-shared.zip -d 3rdparty/ncnn-android-vulkan-shared
 
           ASSET_ROOT="$GITHUB_WORKSPACE/RealSR-NCNN-Android-GUI/app/src/main/assets/realsr"
@@ -63,31 +62,18 @@ jobs:
             fi
           done
 
-      - name: Install photo-focused Real-ESRGAN models
+      - name: Select photo-focused Real-ESRGAN models
         shell: bash
         run: |
           set -euo pipefail
           ASSET_ROOT="$GITHUB_WORKSPACE/RealSR-NCNN-Android-GUI/app/src/main/assets/realsr"
+
+          # Drop anime-specific Real-ESRGAN packs in this photo-focused APK.
           rm -rf "$ASSET_ROOT/models-Real-ESRGAN-anime" \
                  "$ASSET_ROOT/models-Real-ESRGANv2-anime" \
                  "$ASSET_ROOT/models-Real-ESRGANv3-anime"
 
-          mkdir -p "$ASSET_ROOT/models-RealeSR-general-v3"
-          curl --fail --location --retry 3 --retry-delay 2 \
-            "$MODEL_BASE_URL/models-RealeSR-general-v3/x4.bin" \
-            -o "$ASSET_ROOT/models-RealeSR-general-v3/x4.bin"
-          curl --fail --location --retry 3 --retry-delay 2 \
-            "$MODEL_BASE_URL/models-RealeSR-general-v3/x4.param" \
-            -o "$ASSET_ROOT/models-RealeSR-general-v3/x4.param"
-
-          mkdir -p "$ASSET_ROOT/models-ESRGAN-Nomos8kSC"
-          curl --fail --location --retry 3 --retry-delay 2 \
-            "$MODEL_BASE_URL/models-ESRGAN-Nomos8kSC/x4.bin" \
-            -o "$ASSET_ROOT/models-ESRGAN-Nomos8kSC/x4.bin"
-          curl --fail --location --retry 3 --retry-delay 2 \
-            "$MODEL_BASE_URL/models-ESRGAN-Nomos8kSC/x4.param" \
-            -o "$ASSET_ROOT/models-ESRGAN-Nomos8kSC/x4.param"
-
+          # Both photo/general NCNN model pairs are already supplied by assets.zip.
           test -s "$ASSET_ROOT/models-RealeSR-general-v3/x4.bin"
           test -s "$ASSET_ROOT/models-RealeSR-general-v3/x4.param"
           test -s "$ASSET_ROOT/models-ESRGAN-Nomos8kSC/x4.bin"
