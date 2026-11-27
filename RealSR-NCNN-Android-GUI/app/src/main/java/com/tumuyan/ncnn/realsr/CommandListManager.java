@@ -128,6 +128,9 @@ public class CommandListManager {
     public static boolean supportsDirectoryMode(String command) {
         if (command == null || command.isEmpty()) return false;
         String cmd = command.trim().toLowerCase();
+        // Compound Real-ESRGAN + Lanczos presets produce one output file and
+        // are intentionally excluded from directory batch mode.
+        if (cmd.contains("&&") || cmd.contains(";")) return false;
         return cmd.startsWith("./realsr-ncnn") ||
                cmd.startsWith("./srmd-ncnn") ||
                cmd.startsWith("./waifu2x-ncnn") ||
