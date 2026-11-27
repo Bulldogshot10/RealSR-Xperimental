@@ -48,7 +48,7 @@ public class CommandListManager {
             "./realsr-ncnn -i input.png -o output.png -m models-4xLSDIRPlusC -s 4",
             "./realsr-ncnn -i input.png -o output.png -m models-4xLSDIRPlusN -s 4",
             "./realsr-ncnn -i input.png -o output.png -m models-4xLSDIRPlusR -s 4",
-            "./realsr-ncnn -i input.png -o output.png -m models-4_NMKD-Siax -s 4",
+            "./realsr-ncnn -i input.png -o output.png -m models-4x_NMKD-Siax -s 4",
             "./realsr-ncnn -i input.png -o output.png -m models-ClearRealityV1 -s 4",
             "./realcugan-ncnn -i input.png -o output.png  -m models-nose -s 2  -n 0",
             "./realcugan-ncnn -i input.png -o output.png  -m models-se -s 2  -n -1",
