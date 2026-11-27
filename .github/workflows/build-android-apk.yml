@@ -46,13 +46,22 @@ jobs:
           unzip -q -o ncnn-android-vulkan-shared.zip -d 3rdparty/ncnn-android-vulkan-shared
 
           ASSET_ROOT="$GITHUB_WORKSPACE/RealSR-NCNN-Android-GUI/app/src/main/assets/realsr"
+          echo "Extracted asset paths:"
+          find "$GITHUB_WORKSPACE/RealSR-NCNN-Android-GUI/app/src/main/assets" -maxdepth 4 -type f | sort | head -120
+          echo "Expected asset root:"
+          ls -la "$ASSET_ROOT" || true
           test -d "$ASSET_ROOT"
-          for runtime_file in realsr-ncnn realcugan-ncnn srmd-ncnn waifu2x-ncnn resize-ncnn; do
-            test -s "$ASSET_ROOT/$runtime_file"
-            chmod +x "$ASSET_ROOT/$runtime_file"
-          done
+          test -s "$ASSET_ROOT/realsr-ncnn"
+          chmod +x "$ASSET_ROOT/realsr-ncnn"
           test -s "$ASSET_ROOT/libncnn.so"
           test -s "$ASSET_ROOT/libc++_shared.so"
+
+          # These optional programs vary by upstream asset-pack revision.
+          for runtime_file in realcugan-ncnn srmd-ncnn waifu2x-ncnn resize-ncnn; do
+            if [ -s "$ASSET_ROOT/$runtime_file" ]; then
+              chmod +x "$ASSET_ROOT/$runtime_file"
+            fi
+          done
 
       - name: Install photo-focused Real-ESRGAN models
         shell: bash
