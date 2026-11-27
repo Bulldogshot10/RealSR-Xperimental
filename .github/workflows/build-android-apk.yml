@@ -62,30 +62,92 @@ jobs:
             fi
           done
 
-      - name: Select photo-focused Real-ESRGAN models
+      - name: Download and select complete Real-ESRGAN model pack
         shell: bash
         run: |
           set -euo pipefail
           ASSET_ROOT="$GITHUB_WORKSPACE/RealSR-NCNN-Android-GUI/app/src/main/assets/realsr"
+          MODEL_ARCHIVE="$RUNNER_TEMP/realesrgan-ncnn-vulkan-20220424-ubuntu.zip"
+          MODEL_EXTRACT="$RUNNER_TEMP/realesrgan-ncnn-vulkan"
 
-          # Drop anime-specific Real-ESRGAN packs in this photo-focused APK.
+          # Keep photo models in the photo list; AnimeVideo-v3 is packaged separately.
           rm -rf "$ASSET_ROOT/models-Real-ESRGAN-anime" \
                  "$ASSET_ROOT/models-Real-ESRGANv2-anime" \
                  "$ASSET_ROOT/models-Real-ESRGANv3-anime"
 
-          # General photo model plus two realistic/general NCNN model packs.
+          curl --fail --location --retry 3 --retry-delay 2 \
+            "https://github.com/xinntao/Real-ESRGAN/releases/download/v0.2.5.0/realesrgan-ncnn-vulkan-20220424-ubuntu.zip" \
+            -o "$MODEL_ARCHIVE"
+          mkdir -p "$MODEL_EXTRACT"
+          unzip -q -o "$MODEL_ARCHIVE" -d "$MODEL_EXTRACT"
+
+          find_model_file() {
+            local filename="$1"
+            local found
+            found="$(find "$MODEL_EXTRACT" -type f -name "$filename" -print -quit)"
+            if [ -z "$found" ]; then
+              echo "Missing model file in official NCNN release: $filename" >&2
+              find "$MODEL_EXTRACT" -maxdepth 4 -type f | sort | head -120 >&2
+              exit 1
+            fi
+            printf '%s' "$found"
+          }
+
+          # Official RealESRGAN x4plus weights.
+          mkdir -p "$ASSET_ROOT/models-Real-ESRGAN"
+          cp "$(find_model_file realesrgan-x4plus.bin)" "$ASSET_ROOT/models-Real-ESRGAN/x4.bin"
+          cp "$(find_model_file realesrgan-x4plus.param)" "$ASSET_ROOT/models-Real-ESRGAN/x4.param"
+
+          # RealESRNet x4plus: MSE-trained and smoother than GAN x4plus.
+          mkdir -p "$ASSET_ROOT/models-RealESRNet-x4plus"
+          cp "$(find_model_file realesrnet-x4plus.bin)" "$ASSET_ROOT/models-RealESRNet-x4plus/x4.bin"
+          cp "$(find_model_file realesrnet-x4plus.param)" "$ASSET_ROOT/models-RealESRNet-x4plus/x4.param"
+
+          # Official AnimeVideo-v3 provides native 2x, 3x and 4x NCNN weights.
+          ANIME_VIDEO_DIR="$ASSET_ROOT/models-Real-ESRGAN-AnimeVideo-v3"
+          mkdir -p "$ANIME_VIDEO_DIR"
+          for scale in 2 3 4; do
+            cp "$(find_model_file "realesr-animevideov3-x${scale}.bin")" "$ANIME_VIDEO_DIR/x${scale}.bin"
+            cp "$(find_model_file "realesr-animevideov3-x${scale}.param")" "$ANIME_VIDEO_DIR/x${scale}.param"
+          done
+
+          # NCNN conversion of the official RealESRGAN_x2plus general-image weights.
+          X2PLUS_DIR="$ASSET_ROOT/models-Real-ESRGAN-x2plus"
+          mkdir -p "$X2PLUS_DIR"
+          curl --fail --location --retry 3 --retry-delay 2 \
+            "https://huggingface.co/Hibernake/RealESRGAN_x2plus/resolve/main/realesrgan-plus-x2.bin" \
+            -o "$X2PLUS_DIR/x2.bin"
+          curl --fail --location --retry 3 --retry-delay 2 \
+            "https://huggingface.co/Hibernake/RealESRGAN_x2plus/resolve/main/realesrgan-plus-x2.param" \
+            -o "$X2PLUS_DIR/x2.param"
+
+          # Verify every selected model pair before packaging.
           test -s "$ASSET_ROOT/models-Real-ESRGAN/x4.bin"
           test -s "$ASSET_ROOT/models-Real-ESRGAN/x4.param"
+          test -s "$X2PLUS_DIR/x2.bin"
+          test -s "$X2PLUS_DIR/x2.param"
+          test -s "$ASSET_ROOT/models-RealESRNet-x4plus/x4.bin"
+          test -s "$ASSET_ROOT/models-RealESRNet-x4plus/x4.param"
           test -s "$ASSET_ROOT/models-RealeSR-general-v3/x4.bin"
           test -s "$ASSET_ROOT/models-RealeSR-general-v3/x4.param"
           test -s "$ASSET_ROOT/models-ESRGAN-Nomos8kSC/x4.bin"
           test -s "$ASSET_ROOT/models-ESRGAN-Nomos8kSC/x4.param"
+          for scale in 2 3 4; do
+            test -s "$ANIME_VIDEO_DIR/x${scale}.bin"
+            test -s "$ANIME_VIDEO_DIR/x${scale}.param"
+          done
 
           cat > "$ASSET_ROOT/PHOTO_MODELS.txt" <<'EOF'
-          Photo-focused models included in this build:
-          - realesr-general-x4v3 NCNN conversion: https://github.com/xinntao/Real-ESRGAN
-          - 4xNomos8kSC: https://github.com/Phhofm/models/tree/main/4xNomos8kSC
-            License: CC BY 4.0
+          Real-ESRGAN model bundle:
+          - RealESRGAN_x4plus (official NCNN release; BSD-3-Clause)
+          - RealESRGAN_x2plus (NCNN conversion of official weights; BSD-3-Clause)
+          - RealESRNet_x4plus (official NCNN release; BSD-3-Clause; MSE/smoother output)
+          - realesr-general-x4v3 (compact general-scene model)
+          - 4xNomos8kSC (Phhofm; CC BY 4.0)
+          - realesr-animevideov3 x2/x3/x4 (official NCNN release; anime video)
+          Sources: https://github.com/xinntao/Real-ESRGAN
+                   https://huggingface.co/Hibernake/RealESRGAN_x2plus
+                   https://github.com/Phhofm/models/tree/main/4xNomos8kSC
           EOF
 
       - name: Set up Java 17
