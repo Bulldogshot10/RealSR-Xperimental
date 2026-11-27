@@ -43,30 +43,35 @@ RealSR-NCNN-Android-GUI could load extra models from sdcard automatily in ver 1.
 
 ### Photo / realistic-image presets
 
-The Android photo-focused build includes two NCNN Real-ESRGAN models:
+The APK bundles the full practical Real-ESRGAN general-image set plus a photo restoration model:
 
-| Preset | Best use |
-|---|---|
-| RealESRGAN x4plus | General real-world images and mixed photo content; baseline 4x model. |
-| RealESRGAN General v3 | General scenes; compact 4x option. |
-| 4xNomos8kSC | Realistic photographs; photo-trained 4x restoration intended to handle compression and mild blur. |
+| Model | Native scale | Recommended use |
+|---|---:|---|
+| RealESRGAN x4plus | 4× | General real-world photographs; stronger perceptual detail reconstruction. |
+| RealESRGAN x2plus | 2× | General photographs when a native 2× result is preferred. |
+| RealESRNet x4plus | 4× | MSE-trained alternative with smoother, less aggressively sharpened output. |
+| RealESRGAN General v3 | 4× | Compact general-scene model; useful on varied and compressed photographs. |
+| 4xNomos8kSC | 4× | Photo-trained restoration for realistic images. |
 
-Anime-specific Real-ESRGAN model folders are omitted from this APK. Anime4K and Real-CUGAN remain available as separate algorithms.
+The original Anime image-model folders are not added to the realistic-photo preset list. The photo models upscale and reconstruct plausible detail; they do not convert drawings or 3D renders into photographs.
 
-These are super-resolution/restoration models: they increase pixel dimensions and reconstruct plausible detail. They do not translate anime illustrations or 3D renders into photorealistic photographs. A 3D render can be upscaled and sharpened while retaining its rendered look.
-
-The GitHub Actions workflow downloads the runtime and model files, builds the Android GUI APK, and uploads it as the `RealSR-Xperimental-photo-models-debug` artifact.
+Model sources: official [Real-ESRGAN model zoo](https://github.com/xinntao/Real-ESRGAN/blob/master/docs/model_zoo.md), its [NCNN release](https://github.com/xinntao/Real-ESRGAN/releases/tag/v0.2.5.0), the [NCNN conversion of RealESRGAN_x2plus](https://huggingface.co/Hibernake/RealESRGAN_x2plus), and [4xNomos8kSC](https://github.com/Phhofm/models/tree/main/4xNomos8kSC). The Real-ESRGAN weights/conversions are BSD-3-Clause; 4xNomos8kSC is CC BY 4.0.
 
 ### Video upscaling
 
-The GUI includes a dedicated Video button. FFmpeg decodes the video, NCNN Real-ESRGAN processes frames in small batches, then FFmpeg encodes an MP4 with H.264 video and AAC audio. It supports 4x output or 2x output by downscaling the 4x AI result.
+The GUI has a dedicated Video screen. FFmpeg decodes video frames, the selected NCNN model upscales each batch, and FFmpeg encodes an MP4 with H.264 video and AAC audio.
 
 Video model choices:
-- RealESRGAN x4plus — general-purpose real-world image model.
-- RealESRGAN General v3 — compact general-scene model.
-- 4xNomos8kSC — photo-trained model for realistic image restoration.
+- RealESRGAN x4plus — general-purpose realistic footage.
+- RealESRGAN x2plus — native 2× general-image model; the output is fixed at 2×.
+- RealESRGAN General v3 — compact model for varied or compressed footage.
+- RealESRNet x4plus — smoother, MSE-trained detail reconstruction.
+- 4xNomos8kSC — realistic-photo restoration.
+- AnimeVideo-v3 — the dedicated compact animation-video model, with native 2×, 3× and 4× weights.
 
-This is frame-by-frame image super-resolution, not a temporal video-restoration model. Fast motion and fine textures may show frame-to-frame shimmer. The build bundles FFmpeg 8.1.2 with libx264; the FFmpeg runtime is GPL-2.0-or-later. The Actions workflow also publishes the corresponding FFmpeg/x264 source archive alongside the APK artifact.
+For the 4× photo models, the app can encode 2× or 3× output by Lanczos-downscaling the AI result. AnimeVideo-v3 uses its matching native scale weights. RealESRGAN's video model is specifically trained for animation; the realistic-footage choices are image-restoration models applied frame-by-frame, not a temporal video-restoration network. Fast motion or fine textures can therefore show frame-to-frame shimmer.
+
+The build bundles FFmpeg 8.1.2 with libx264. The FFmpeg runtime is GPL-2.0-or-later, and the Actions workflow publishes its corresponding FFmpeg/x264 source archive beside the APK artifact.
 
 ### Convert models to mnn format
 
