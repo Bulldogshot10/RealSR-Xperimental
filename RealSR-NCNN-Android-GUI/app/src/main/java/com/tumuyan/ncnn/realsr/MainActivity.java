@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
 
     private final String[] bench_mark_commands = new String[] {
             "./realsr-ncnn -c 46 -i img/PM5544.jpeg -o input.png  -m models-Real-ESRGAN",
-            "./realsr-ncnn -c 46 -i input.png -o output.png  -m models-Real-ESRGANv3-anime -s 4"
+            "./realsr-ncnn -c 46 -i input.png -o output.png  -m models-ESRGAN-Nomos8kSC -s 4"
     };
     private int tileSize;
     private boolean useCPU;

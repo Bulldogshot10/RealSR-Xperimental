@@ -41,6 +41,22 @@ RealSR-NCNN-Android-GUI could load extra models from sdcard automatily in ver 1.
 
 ![](Screenshot_models.jpg)
 
+### Photo / realistic-image presets
+
+The Android photo-focused build includes three NCNN Real-ESRGAN options:
+
+| Preset | Best use |
+|---|---|
+| RealESRGAN x4plus | General real-world images and mixed photo content; a strong general-purpose 4x baseline. |
+| RealESRGAN General v3 | General scenes; a lighter general-purpose 4x option. |
+| 4xNomos8kSC | Realistic photographs; photo-trained 4x restoration intended to handle compression and mild blur. |
+
+Anime-specific Real-ESRGAN model folders are omitted from this APK. Anime4K and Real-CUGAN remain available as separate algorithms.
+
+These are super-resolution/restoration models: they increase pixel dimensions and reconstruct plausible detail. They do not translate anime illustrations or 3D renders into photorealistic photographs. A 3D render can be upscaled and sharpened while retaining its rendered look.
+
+The GitHub Actions workflow downloads the runtime and model files, builds the Android GUI APK, and uploads it as the `RealSR-Xperimental-photo-models-debug` artifact.
+
 ### Convert models to mnn format
 
 ✨ ver 1.11 support [mnn](https://github.com/alibaba/MNN) models. MNN could support more models than ncnn. ver 1.12 could use `-c` param or model file name to config the color space.

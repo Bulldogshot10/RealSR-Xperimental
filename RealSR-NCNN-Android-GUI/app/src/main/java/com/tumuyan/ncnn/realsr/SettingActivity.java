@@ -218,7 +218,7 @@ public class SettingActivity extends AppCompatActivity {
             editThread.setText("");
             editExtraPath.setText("");
             editMNNBackend.setText("3");
-            editDefaultCommand.setText("./realsr-ncnn -i input.png -o output.png -m models-Real-ESRGANv3-anime -s 2");
+            editDefaultCommand.setText("./realsr-ncnn -i input.png -o output.png -m models-Real-ESRGAN -s 4");
             editClassicalFilters.setText(getString(R.string.default_classical_filters));
             editMagickFilters.setText(getString(R.string.default_magick_filters));
             save();

@@ -183,19 +183,9 @@ Even if this feature is disabled, you can still select multiple images from othe
         <item>Input Directory Name-Time</item>
     </string-array>
     <string-array name="style_array">
-        <item>real-esrgan-anime-x4</item>
-        <item>real-esrgan-x4</item>
-        <item>realsr-general-v3</item>
-        <item>real-esrganv3-anime-x2</item>
-        <item>real-esrganv3-anime-x3</item>
-        <item>real-esrganv3-anime-x4</item>
-        <item>real-esrganv2-anime-x2</item>
-        <item>real-esrganv2-anime-x4</item>
-        <item>ESRGAN-MoeSR-jp_Illustration-x4</item>
-        <item>ESRGAN-DeMosaic-anime-x1</item>
-        <item>real-esrgan-Nomos8kSC-x4</item>
-        <item>real-esrgan-Nomos8kSC-MNN-x4</item>
-        <item>real-esrgan-SourceBook-x2</item>
+        <item>RealESRGAN-x4plus-General-x4</item>
+        <item>RealESRGAN-General-v3-x4</item>
+        <item>Nomos8kSC-Photo-x4</item>
         <item>real-cugan-x2-no-denoise</item>
         <item>real-cugan-x2-conservative</item>
         <item>real-cugan-x2-noise0</item>

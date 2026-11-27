@@ -543,11 +543,11 @@ void *save(void *args) {
 #if _WIN32
 const std::wstring& optarg_in (L"A:\\Media\\realsr-ncnn-vulkan-20210210-windows\\input3.jpg");
 const std::wstring& optarg_out(L"A:\\Media\\realsr-ncnn-vulkan-20210210-windows\\output3.jpg");
-const std::wstring& optarg_mo (L"A:\\Media\\realsr-ncnn-vulkan-20210210-windows\\models-Real-ESRGAN-anime");
+const std::wstring& optarg_mo (L"A:\\Media\\realsr-ncnn-vulkan-20210210-windows\\models-Real-ESRGAN");
 #else
 const char *optarg_in = "/sdcard/10086/input3.jpg";
 const char *optarg_out = "/sdcard/10086/output3.jpg";
-const char *optarg_mo = "/sdcard/10086/models-Real-ESRGAN-anime";
+const char *optarg_mo = "/sdcard/10086/models-Real-ESRGAN";
 #endif
 
 #if _WIN32
@@ -567,7 +567,7 @@ int main(int argc, char **argv)
 #if _DEMO_PATH
     path_t model = optarg_mo;
 #else
-    path_t model = PATHSTR("models-Real-ESRGAN-anime");
+    path_t model = PATHSTR("models-Real-ESRGAN");
 #endif
     std::vector<int> gpuid;
     int jobs_load = 1;
