@@ -184,6 +184,7 @@ Even if this feature is disabled, you can still select multiple images from othe
     </string-array>
     <string-array name="style_array">
         <item>RealESRGAN-x4plus-General-x4</item>
+        <item>RealESRGAN-x4plus-3x-output-Lanczos</item>
         <item>RealESRGAN-x2plus-General-x2</item>
         <item>RealESRNet-x4plus-Smoother-x4</item>
         <item>RealESRGAN-General-v3-x4</item>
@@ -300,8 +301,8 @@ Even if this feature is disabled, you can still select multiple images from othe
     </string-array>
     <string-array name="video_scale_options">
         <item>4× output</item>
-        <item>3× output</item>
-        <item>2× output</item>
+        <item>3× final output (native AnimeVideo-v3; x4 photo models downscale with Lanczos)</item>
+        <item>2× final output (native x2plus / AnimeVideo-v3; x4 photo models downscale with Lanczos)</item>
     </string-array>
 
 </resources>
