@@ -184,6 +184,8 @@ Even if this feature is disabled, you can still select multiple images from othe
     </string-array>
     <string-array name="style_array">
         <item>RealESRGAN-x4plus-General-x4</item>
+        <item>RealESRGAN-x2plus-General-x2</item>
+        <item>RealESRNet-x4plus-Smoother-x4</item>
         <item>RealESRGAN-General-v3-x4</item>
         <item>Nomos8kSC-Photo-x4</item>
         <item>real-cugan-x2-no-denoise</item>
@@ -273,7 +275,7 @@ Even if this feature is disabled, you can still select multiple images from othe
 
     <string name="video_upscale">Video</string>
     <string name="video_upscale_title">Video Upscale</string>
-    <string name="video_upscale_description">Upscale realistic video with Real-ESRGAN. Frames are processed in small batches; audio is re-encoded to AAC.</string>
+    <string name="video_upscale_description">Choose general-photo models for real-world footage or AnimeVideo-v3 for animation. Frames are processed in small batches; audio is re-encoded to AAC.</string>
     <string name="video_select">Select video</string>
     <string name="video_no_input">No video selected</string>
     <string name="video_model_label">Real-ESRGAN model</string>
@@ -286,16 +288,19 @@ Even if this feature is disabled, you can still select multiple images from othe
     <string name="video_failed">Video upscale failed</string>
     <string name="video_cancelled">Video upscale cancelled</string>
     <string name="video_output">Output file: %1$s</string>
-    <string name="video_note">Real-ESRGAN is applied frame-by-frame. Fast motion or fine texture can show temporal shimmer because these are image models, not a temporal video-restoration network.</string>
+    <string name="video_note">Use x4plus, General v3, RealESRNet or Nomos for realistic footage. AnimeVideo-v3 is specialized for anime and supports native 2x/3x/4x. General-photo models process frames independently, so fast motion may show temporal shimmer.</string>
     <string name="video_permission_required">Storage permission is required to save the upscaled video.</string>
     <string-array name="video_model_options">
-        <item>RealESRGAN x4plus — General</item>
-        <item>RealESRGAN General v3</item>
+        <item>RealESRGAN x4plus — General Photo</item>
+        <item>RealESRGAN General v3 — General / Compressed Video</item>
+        <item>RealESRNet x4plus — Softer Detail</item>
         <item>Nomos8kSC — Realistic Photo</item>
+        <item>AnimeVideo-v3 — Anime Video</item>
     </string-array>
     <string-array name="video_scale_options">
         <item>4× output</item>
-        <item>2× output (4× AI upscale, then downscale)</item>
+        <item>3× output</item>
+        <item>2× output</item>
     </string-array>
 
 </resources>
