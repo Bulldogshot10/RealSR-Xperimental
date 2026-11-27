@@ -189,6 +189,13 @@ Even if this feature is disabled, you can still select multiple images from othe
         <item>RealESRNet-x4plus-Smoother-x4</item>
         <item>RealESRGAN-General-v3-x4</item>
         <item>Nomos8kSC-Photo-x4</item>
+        <item>4xLSDIR-Realistic-x4</item>
+        <item>4xLSDIRPlus-General-Realistic-x4</item>
+        <item>4xLSDIRPlusC-JPEG-Compression-x4</item>
+        <item>4xLSDIRPlusN-Clean-Image-x4</item>
+        <item>4xLSDIRPlusR-JPEG-Noise-Blur-x4</item>
+        <item>NMKD-Siax-Clean-JPEG-x4</item>
+        <item>ClearRealityV1-Soft-Realistic-x4</item>
         <item>real-cugan-x2-no-denoise</item>
         <item>real-cugan-x2-conservative</item>
         <item>real-cugan-x2-noise0</item>
