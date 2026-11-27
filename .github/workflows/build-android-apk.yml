@@ -349,6 +349,56 @@ jobs:
           file "$ASSET_ROOT/resize-ncnn"
           "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" -d "$ASSET_ROOT/resize-ncnn" | grep NEEDED || true
 
+      - name: Build fork RealSR CLI with current model-path handling
+        shell: bash
+        run: |
+          set -euo pipefail
+          JNI_DIR="$GITHUB_WORKSPACE/RealSR-NCNN-Android-CLI/RealSR/src/main/jni"
+          BUILD_DIR="$RUNNER_TEMP/realsr-ncnn-android-build"
+          OUTPUT_DIR="$RUNNER_TEMP/realsr-ncnn-android-output"
+          ASSET_ROOT="$GITHUB_WORKSPACE/RealSR-NCNN-Android-GUI/app/src/main/assets/realsr"
+          mkdir -p "$OUTPUT_DIR"
+
+          # RealSR's GPU path uses NCNN's Vulkan API, so generate matching
+          # headers with Vulkan enabled (the Resize CLI above uses CPU-only headers).
+          cmake -S "$GITHUB_WORKSPACE/3rdparty/ncnn-src" \
+            -B "$RUNNER_TEMP/ncnn-vulkan-headers-build" \
+            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI=arm64-v8a \
+            -DANDROID_PLATFORM=android-24 \
+            -DANDROID_STL=c++_shared \
+            -DNCNN_VULKAN=ON \
+            -DNCNN_BUILD_TOOLS=OFF \
+            -DNCNN_BUILD_EXAMPLES=OFF \
+            -DNCNN_BUILD_BENCHMARK=OFF \
+            -DNCNN_BUILD_TESTS=OFF
+          test -s "$RUNNER_TEMP/ncnn-vulkan-headers-build/src/platform.h"
+          test -s "$RUNNER_TEMP/ncnn-vulkan-headers-build/src/ncnn_export.h"
+
+          cmake -S "$JNI_DIR" -B "$BUILD_DIR" \
+            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI=arm64-v8a \
+            -DANDROID_PLATFORM=android-24 \
+            -DANDROID_STL=c++_shared \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_CXX_FLAGS="-I$GITHUB_WORKSPACE/3rdparty/ncnn-src/src -I$RUNNER_TEMP/ncnn-vulkan-headers-build/src" \
+            -DNCNN_LIB="$NCNN_LIBRARY" \
+            -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$OUTPUT_DIR"
+
+          cmake --build "$BUILD_DIR" --parallel 2
+          test -s "$OUTPUT_DIR/realsr-ncnn"
+          # assets.cmake copies the generated executable directory into ASSET_ROOT.
+          test -s "$ASSET_ROOT/realsr-ncnn"
+          chmod 755 "$ASSET_ROOT/realsr-ncnn"
+          if grep -a -q "unknown model dir type" "$ASSET_ROOT/realsr-ncnn"; then
+            echo "The upstream model-directory guard is still present in the packaged CLI." >&2
+            exit 1
+          fi
+
+          echo "Built fork RealSR CLI:"
+          file "$ASSET_ROOT/realsr-ncnn"
+          "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" -d "$ASSET_ROOT/realsr-ncnn" | grep NEEDED || true
+
       - name: Checkout FFmpeg Android builder
         shell: bash
         run: |
