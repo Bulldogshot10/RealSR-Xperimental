@@ -56,7 +56,7 @@ public final class VideoUpscaleProcessor {
     }
 
     public void upscale(File inputFile, File outputFile, String modelFolder, int outputScale,
-                        ProgressListener listener) throws Exception {
+                        int modelScale, ProgressListener listener) throws Exception {
         cancelled.set(false);
         if (inputFile == null || !inputFile.isFile() || inputFile.length() == 0) {
             throw new IOException("Input video is missing or empty.");
@@ -64,8 +64,11 @@ public final class VideoUpscaleProcessor {
         if (!runtimeDir.isDirectory()) {
             throw new IOException("RealSR runtime directory is missing.");
         }
-        if (outputScale != 2 && outputScale != 4) {
-            throw new IllegalArgumentException("Output scale must be 2 or 4.");
+        if (outputScale < 2 || outputScale > 4) {
+            throw new IllegalArgumentException("Output scale must be 2, 3 or 4.");
+        }
+        if (modelScale < 2 || modelScale > 4) {
+            throw new IllegalArgumentException("Model scale must be 2, 3 or 4.");
         }
 
         File ffmpeg = new File(runtimeDir, "ffmpeg");
@@ -75,8 +78,10 @@ public final class VideoUpscaleProcessor {
         if (!ffmpeg.isFile() || !ffprobe.isFile() || !realsr.isFile()) {
             throw new IOException("Video runtime is incomplete. FFmpeg or realsr-ncnn is missing.");
         }
-        if (!new File(model, "x4.bin").isFile() || !new File(model, "x4.param").isFile()) {
-            throw new IOException("Selected model files are missing: " + modelFolder);
+        String modelScaleName = "x" + modelScale;
+        if (!new File(model, modelScaleName + ".bin").isFile()
+                || !new File(model, modelScaleName + ".param").isFile()) {
+            throw new IOException("Selected model files are missing: " + modelFolder + "/" + modelScaleName);
         }
 
         File work = new File(runtimeDir.getParentFile(), "video-upscale-work");
@@ -113,8 +118,10 @@ public final class VideoUpscaleProcessor {
                 "-pix_fmt", "yuv420p",
                 "-c:a", "aac", "-b:a", "192k"
         ));
-        if (outputScale == 2) {
-            encoderCommand.addAll(Arrays.asList("-vf", "scale=iw/2:ih/2:flags=lanczos"));
+        if (outputScale != modelScale) {
+            String resizeFilter = String.format(Locale.US, "scale=iw*%d/%d:ih*%d/%d:flags=lanczos",
+                    outputScale, modelScale, outputScale, modelScale);
+            encoderCommand.addAll(Arrays.asList("-vf", resizeFilter));
         }
         encoderCommand.addAll(Arrays.asList(
                 "-movflags", "+faststart", "-shortest", outputFile.getAbsolutePath()
@@ -201,7 +208,8 @@ public final class VideoUpscaleProcessor {
         }
     }
 
-    private int processBatch(File realsr, File model, File inputFrames, File outputFrames,
+    private int processBatch(File realsr, File model, int modelScale,
+                             File inputFrames, File outputFrames,
                              OutputStream encoderInput, File modelLog,
                              ProgressListener listener, int processedFrames,
                              int estimatedFrames) throws Exception {
@@ -220,7 +228,7 @@ public final class VideoUpscaleProcessor {
                 "-i", inputFrames.getAbsolutePath(),
                 "-o", outputFrames.getAbsolutePath(),
                 "-m", model.getAbsolutePath(),
-                "-s", "4",
+                "-s", String.valueOf(modelScale),
                 "-t", String.valueOf(TILE_SIZE)
         );
         ProcessBuilder builder = new ProcessBuilder(command);
