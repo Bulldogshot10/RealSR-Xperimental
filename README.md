@@ -55,7 +55,7 @@ The APK bundles the full practical Real-ESRGAN general-image set plus a photo re
 
 The original Anime image-model folders are not added to the realistic-photo preset list. The photo models upscale and reconstruct plausible detail; they do not convert drawings or 3D renders into photographs.
 
-Model sources: official [Real-ESRGAN model zoo](https://github.com/xinntao/Real-ESRGAN/blob/master/docs/model_zoo.md), its [NCNN release](https://github.com/xinntao/Real-ESRGAN/releases/tag/v0.2.5.0), the [NCNN conversion of RealESRGAN_x2plus](https://huggingface.co/Hibernake/RealESRGAN_x2plus), and [4xNomos8kSC](https://github.com/Phhofm/models/tree/main/4xNomos8kSC). The Real-ESRGAN weights/conversions are BSD-3-Clause; 4xNomos8kSC is CC BY 4.0.
+Model sources: official [Real-ESRGAN model zoo](https://github.com/xinntao/Real-ESRGAN/blob/master/docs/model_zoo.md), its [NCNN release](https://github.com/xinntao/Real-ESRGAN/releases/tag/v0.2.5.0), the [NCNN conversion of RealESRGAN_x2plus](https://huggingface.co/Hibernake/RealESRGAN_x2plus), the [RealESRNet NCNN conversion files](https://github.com/specializeddevel/image_enhancer_fx_gui/tree/main/models), and [4xNomos8kSC](https://github.com/Phhofm/models/tree/main/4xNomos8kSC). Upstream Real-ESRGAN weights are BSD-3-Clause; 4xNomos8kSC is CC BY 4.0.
 
 ### Video upscaling
 
