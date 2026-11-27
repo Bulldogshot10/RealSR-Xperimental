@@ -25,7 +25,7 @@ jobs:
   build-apk:
     name: Build Android GUI APK
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 90
     steps:
       - name: Checkout my fork
         uses: actions/checkout@v4
@@ -73,7 +73,9 @@ jobs:
                  "$ASSET_ROOT/models-Real-ESRGANv2-anime" \
                  "$ASSET_ROOT/models-Real-ESRGANv3-anime"
 
-          # Both photo/general NCNN model pairs are already supplied by assets.zip.
+          # General photo model plus two realistic/general NCNN model packs.
+          test -s "$ASSET_ROOT/models-Real-ESRGAN/x4.bin"
+          test -s "$ASSET_ROOT/models-Real-ESRGAN/x4.param"
           test -s "$ASSET_ROOT/models-RealeSR-general-v3/x4.bin"
           test -s "$ASSET_ROOT/models-RealeSR-general-v3/x4.param"
           test -s "$ASSET_ROOT/models-ESRGAN-Nomos8kSC/x4.bin"
@@ -106,6 +108,61 @@ jobs:
           sdkmanager --install "platform-tools" "platforms;android-36" "build-tools;36.0.0"
           sdkmanager --list_installed
 
+      - name: Install Android NDK and FFmpeg build tools
+        shell: bash
+        run: |
+          set -euo pipefail
+          sdkmanager --install "ndk;27.2.12479018"
+          sudo apt-get update
+          sudo apt-get install -y autoconf automake libtool pkg-config nasm yasm
+          echo "ANDROID_SDK_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
+          echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.2.12479018" >> "$GITHUB_ENV"
+
+      - name: Cache FFmpeg source trees
+        uses: actions/cache@v4
+        with:
+          path: .ffmpeg-android-maker/sources
+          key: ffmpeg-8.1.2-x264-arm64-ndk-r27c-${{ runner.os }}
+
+      - name: Build FFmpeg 8.1.2 for Android arm64
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone https://github.com/Javernaut/ffmpeg-android-maker.git .ffmpeg-android-maker
+          cd .ffmpeg-android-maker
+          git checkout dd72b161ae5c759fd25a5cab971a3ff710f0bdba
+          ./ffmpeg-android-maker.sh --target-abis=arm64-v8a --enable-libx264 --android-api-level=24 --source-tar=8.1.2
+
+          FFMPEG_BUILD="$PWD/build/ffmpeg/arm64-v8a"
+          test -s "$FFMPEG_BUILD/bin/ffmpeg"
+          test -s "$FFMPEG_BUILD/bin/ffprobe"
+          test -s "$FFMPEG_BUILD/lib/libavcodec.so"
+
+          ASSET_ROOT="$GITHUB_WORKSPACE/RealSR-NCNN-Android-GUI/app/src/main/assets/realsr"
+          cp "$FFMPEG_BUILD/bin/ffmpeg" "$ASSET_ROOT/ffmpeg"
+          cp "$FFMPEG_BUILD/bin/ffprobe" "$ASSET_ROOT/ffprobe"
+          cp "$FFMPEG_BUILD/lib/"*.so "$ASSET_ROOT/"
+          chmod +x "$ASSET_ROOT/ffmpeg" "$ASSET_ROOT/ffprobe"
+
+          cat > "$ASSET_ROOT/FFMPEG-LICENSE.txt" <<'EOF'
+          FFmpeg 8.1.2 built for Android arm64-v8a with --enable-gpl --enable-libx264.
+          FFmpeg and the resulting executable/libraries are distributed under GPL-2.0-or-later.
+          x264 is distributed under GPL-2.0-or-later.
+          FFmpeg build scripts: https://github.com/Javernaut/ffmpeg-android-maker
+          Corresponding source archive: FFmpeg-GPL-corresponding-source artifact in the same GitHub Actions run.
+          EOF
+
+          tar -czf "$GITHUB_WORKSPACE/ffmpeg-gpl-corresponding-source.tar.gz" \
+            sources/ffmpeg sources/libx264 scripts ffmpeg-android-maker.sh LICENSE.txt
+
+      - name: Upload FFmpeg corresponding source
+        uses: actions/upload-artifact@v4
+        with:
+          name: FFmpeg-GPL-corresponding-source-${{ github.sha }}
+          path: ffmpeg-gpl-corresponding-source.tar.gz
+          if-no-files-found: error
+          retention-days: 90
+
       - name: Build debug APK
         working-directory: RealSR-NCNN-Android-GUI
         shell: bash
@@ -125,7 +182,7 @@ jobs:
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: RealSR-Xperimental-photo-models-debug-${{ github.sha }}
+          name: RealSR-Xperimental-video-photo-models-debug-${{ github.sha }}
           path: RealSR-NCNN-Android-GUI/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 30

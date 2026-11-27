@@ -19,6 +19,11 @@
             android:name="libGLES_mali.so"
             android:required="true"/>
         <service android:name=".ProcessingService" />
+        <service android:name=".VideoUpscaleService" android:exported="false" />
+        <activity
+            android:name=".VideoUpscaleActivity"
+            android:parentActivityName=".MainActivity"
+            android:exported="false" />
         <activity
             android:name=".SettingActivity"
             android:parentActivityName=".MainActivity"

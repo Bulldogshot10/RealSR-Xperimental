@@ -664,6 +664,10 @@ public class MainActivity extends AppCompatActivity {
             overridePendingTransition(0, android.R.anim.slide_out_right);
         });
 
+        findViewById(R.id.btn_video).setOnClickListener(view -> {
+            startActivity(new Intent(this, VideoUpscaleActivity.class));
+        });
+
         requirePremision();
 
         if (menuProgress != null)

@@ -47,7 +47,8 @@ The Android photo-focused build includes two NCNN Real-ESRGAN models:
 
 | Preset | Best use |
 |---|---|
-| RealESRGAN General v3 | General real-world scenes; a compact 4x model. |
+| RealESRGAN x4plus | General real-world images and mixed photo content; baseline 4x model. |
+| RealESRGAN General v3 | General scenes; compact 4x option. |
 | 4xNomos8kSC | Realistic photographs; photo-trained 4x restoration intended to handle compression and mild blur. |
 
 Anime-specific Real-ESRGAN model folders are omitted from this APK. Anime4K and Real-CUGAN remain available as separate algorithms.
@@ -55,6 +56,17 @@ Anime-specific Real-ESRGAN model folders are omitted from this APK. Anime4K and 
 These are super-resolution/restoration models: they increase pixel dimensions and reconstruct plausible detail. They do not translate anime illustrations or 3D renders into photorealistic photographs. A 3D render can be upscaled and sharpened while retaining its rendered look.
 
 The GitHub Actions workflow downloads the runtime and model files, builds the Android GUI APK, and uploads it as the `RealSR-Xperimental-photo-models-debug` artifact.
+
+### Video upscaling
+
+The GUI includes a dedicated Video button. FFmpeg decodes the video, NCNN Real-ESRGAN processes frames in small batches, then FFmpeg encodes an MP4 with H.264 video and AAC audio. It supports 4x output or 2x output by downscaling the 4x AI result.
+
+Video model choices:
+- RealESRGAN x4plus — general-purpose real-world image model.
+- RealESRGAN General v3 — compact general-scene model.
+- 4xNomos8kSC — photo-trained model for realistic image restoration.
+
+This is frame-by-frame image super-resolution, not a temporal video-restoration model. Fast motion and fine textures may show frame-to-frame shimmer. The build bundles FFmpeg 8.1.2 with libx264; the FFmpeg runtime is GPL-2.0-or-later. The Actions workflow also publishes the corresponding FFmpeg/x264 source archive alongside the APK artifact.
 
 ### Convert models to mnn format
 

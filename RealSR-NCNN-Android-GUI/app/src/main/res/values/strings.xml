@@ -183,6 +183,7 @@ Even if this feature is disabled, you can still select multiple images from othe
         <item>Input Directory Name-Time</item>
     </string-array>
     <string-array name="style_array">
+        <item>RealESRGAN-x4plus-General-x4</item>
         <item>RealESRGAN-General-v3-x4</item>
         <item>Nomos8kSC-Photo-x4</item>
         <item>real-cugan-x2-no-denoise</item>
@@ -269,4 +270,32 @@ Even if this feature is disabled, you can still select multiple images from othe
     <string name="hide_magick">Hide ImageMagick (magick)</string>
     <string name="hide_anime4k">Hide Anime4K</string>
     <string name="command_warn">⚠️Commands entered here will be executed directly with shell permissions. Please ensure you understand the command\'s purpose. You are fully responsible for your actions.</string>
+
+    <string name="video_upscale">Video</string>
+    <string name="video_upscale_title">Video Upscale</string>
+    <string name="video_upscale_description">Upscale realistic video with Real-ESRGAN. Frames are processed in small batches; audio is re-encoded to AAC.</string>
+    <string name="video_select">Select video</string>
+    <string name="video_no_input">No video selected</string>
+    <string name="video_model_label">Real-ESRGAN model</string>
+    <string name="video_scale_label">Output scale</string>
+    <string name="video_start">Start video upscale</string>
+    <string name="video_cancel">Cancel</string>
+    <string name="video_ready">Ready. Select a video to begin.</string>
+    <string name="video_processing">Processing video frames…</string>
+    <string name="video_done">Video upscale completed</string>
+    <string name="video_failed">Video upscale failed</string>
+    <string name="video_cancelled">Video upscale cancelled</string>
+    <string name="video_output">Output file: %1$s</string>
+    <string name="video_note">Real-ESRGAN is applied frame-by-frame. Fast motion or fine texture can show temporal shimmer because these are image models, not a temporal video-restoration network.</string>
+    <string name="video_permission_required">Storage permission is required to save the upscaled video.</string>
+    <string-array name="video_model_options">
+        <item>RealESRGAN x4plus — General</item>
+        <item>RealESRGAN General v3</item>
+        <item>Nomos8kSC — Realistic Photo</item>
+    </string-array>
+    <string-array name="video_scale_options">
+        <item>4× output</item>
+        <item>2× output (4× AI upscale, then downscale)</item>
+    </string-array>
+
 </resources>
