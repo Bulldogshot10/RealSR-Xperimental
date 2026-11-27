@@ -32,13 +32,15 @@ public class VideoUpscaleActivity extends AppCompatActivity {
 
     private final String[] modelFolders = {
             "models-Real-ESRGAN",
+            "models-Real-ESRGAN-x2plus",
             "models-RealeSR-general-v3",
             "models-RealESRNet-x4plus",
             "models-ESRGAN-Nomos8kSC",
             "models-Real-ESRGAN-AnimeVideo-v3"
     };
 
-    private static final int ANIME_VIDEO_MODEL_INDEX = 4;
+    private static final int X2PLUS_MODEL_INDEX = 1;
+    private static final int ANIME_VIDEO_MODEL_INDEX = 5;
 
     private Uri selectedVideo;
     private String selectedName = "video";
@@ -97,6 +99,23 @@ public class VideoUpscaleActivity extends AppCompatActivity {
                 getResources().getStringArray(R.array.video_scale_options));
         scaleAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         scaleSpinner.setAdapter(scaleAdapter);
+
+        modelSpinner.setOnItemSelectedListener(new android.widget.AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(android.widget.AdapterView<?> parent, View view, int position, long id) {
+                boolean x2Only = position == X2PLUS_MODEL_INDEX;
+                scaleSpinner.setEnabled(!x2Only);
+                if (x2Only) {
+                    scaleSpinner.setSelection(2);
+                } else if (scaleSpinner.getSelectedItemPosition() == 2) {
+                    scaleSpinner.setSelection(0);
+                }
+            }
+
+            @Override
+            public void onNothingSelected(android.widget.AdapterView<?> parent) {
+            }
+        });
 
         findViewById(R.id.btn_select_video).setOnClickListener(view -> selectVideo());
         startButton.setOnClickListener(view -> startUpscale());
@@ -165,7 +184,8 @@ public class VideoUpscaleActivity extends AppCompatActivity {
 
         int modelIndex = modelSpinner.getSelectedItemPosition();
         String modelFolder = modelFolders[modelIndex];
-        int modelScale = modelIndex == ANIME_VIDEO_MODEL_INDEX ? scale : 4;
+        int modelScale = modelIndex == ANIME_VIDEO_MODEL_INDEX ? scale
+                : (modelIndex == X2PLUS_MODEL_INDEX ? 2 : 4);
         Intent intent = new Intent(this, VideoUpscaleService.class);
         intent.setAction(VideoUpscaleService.ACTION_START);
         intent.putExtra(VideoUpscaleService.EXTRA_INPUT_URI, selectedVideo.toString());
