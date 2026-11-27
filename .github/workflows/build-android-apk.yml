@@ -307,6 +307,7 @@ jobs:
           # public headers from the same NCNN tag used for the runtime.
           git clone --depth 1 --branch 20250503 \
             https://github.com/Tencent/ncnn.git 3rdparty/ncnn-src
+          git -C 3rdparty/ncnn-src submodule update --init --depth 1 glslang
           cmake -S 3rdparty/ncnn-src -B "$RUNNER_TEMP/ncnn-headers-build" \
             -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
             -DANDROID_ABI=arm64-v8a \
