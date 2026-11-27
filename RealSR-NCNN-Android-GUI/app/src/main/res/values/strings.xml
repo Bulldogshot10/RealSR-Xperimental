@@ -195,7 +195,7 @@ Even if this feature is disabled, you can still select multiple images from othe
         <item>4xLSDIRPlusN-Clean-Image-x4</item>
         <item>4xLSDIRPlusR-JPEG-Noise-Blur-x4</item>
         <item>NMKD-Siax-Clean-JPEG-x4</item>
-        <item>ClearRealityV1-Soft-Realistic-x4</item>
+        <item>ClearRealityV1-Realistic-Soft-Natural-x4</item>
         <item>real-cugan-x2-no-denoise</item>
         <item>real-cugan-x2-conservative</item>
         <item>real-cugan-x2-noise0</item>
