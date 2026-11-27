@@ -38,6 +38,7 @@ public class CommandListManager {
 
     public static final String[] COMMAND_0 = new String[] {
             "./realsr-ncnn -i input.png -o output.png -m models-Real-ESRGAN -s 4",
+            "./realsr-ncnn -i input.png -o output_x4plus_tmp.png -m models-Real-ESRGAN -s 4 && ./magick output_x4plus_tmp.png -filter Lanczos -resize 75% output.png && rm -f output_x4plus_tmp.png",
             "./realsr-ncnn -i input.png -o output.png -m models-Real-ESRGAN-x2plus -s 2",
             "./realsr-ncnn -i input.png -o output.png -m models-RealESRNet-x4plus -s 4",
             "./realsr-ncnn -i input.png -o output.png -m models-RealeSR-general-v3 -s 4",
