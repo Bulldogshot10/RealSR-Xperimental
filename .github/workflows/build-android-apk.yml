@@ -47,6 +47,16 @@ jobs:
           unzip -q -o assets.zip -d RealSR-NCNN-Android-GUI/app/src/main
           unzip -q -o ncnn-android-vulkan-shared.zip -d 3rdparty/ncnn-android-vulkan-shared
 
+          # Resolve the actual nested layout in the versioned prebuilt archive.
+          NCNN_LIBRARY="$(find "$GITHUB_WORKSPACE/3rdparty/ncnn-android-vulkan-shared" -type f -name libncnn.so -print -quit)"
+          if [ -z "$NCNN_LIBRARY" ]; then
+            echo "libncnn.so was not found in the downloaded NCNN runtime archive." >&2
+            find "$GITHUB_WORKSPACE/3rdparty/ncnn-android-vulkan-shared" -maxdepth 5 -type f | sort | head -120 >&2
+            exit 1
+          fi
+          echo "NCNN_LIBRARY=$NCNN_LIBRARY" >> "$GITHUB_ENV"
+          echo "Resolved NCNN library: $NCNN_LIBRARY"
+
           ASSET_ROOT="$GITHUB_WORKSPACE/RealSR-NCNN-Android-GUI/app/src/main/assets/realsr"
           echo "Extracted asset paths:"
           find "$GITHUB_WORKSPACE/RealSR-NCNN-Android-GUI/app/src/main/assets" -maxdepth 4 -type f | sort | head -120
@@ -242,6 +252,7 @@ jobs:
             -DANDROID_STL=c++_shared \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_CXX_FLAGS="-I$GITHUB_WORKSPACE/3rdparty/ncnn-src/src -I$RUNNER_TEMP/ncnn-headers-build/src" \
+            -DNCNN_LIB="$NCNN_LIBRARY" \
             -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$OUTPUT_DIR"
 
           cmake --build "$BUILD_DIR" --parallel 2
