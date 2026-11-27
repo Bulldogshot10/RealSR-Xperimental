@@ -9,8 +9,12 @@ elseif(CMAKE_SYSTEM_NAME STREQUAL "Linux")
     include_directories(${ncnn_DIR}/include/ncnn)
 #    find_library(NCNN_LIB NAMES ncnn libncnn PATHS "${ncnn_DIR}/lib")
 else ()  # Android Studio
-    set(ncnn_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../../../../../3rdparty/ncnn-android-vulkan-shared)
-    include_directories(${ncnn_DIR}/${TARGET_ARCH}/include/ncnn)
+    set(ncnn_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../../../../3rdparty/ncnn-android-vulkan-shared")
+    get_filename_component(ncnn_DIR "${ncnn_DIR}" ABSOLUTE)
+    # NCNN release packages may expose headers from include/ or include/ncnn/.
+    # Add both roots so C++ includes for either layout resolve.
+    include_directories("${ncnn_DIR}/${TARGET_ARCH}/include")
+    include_directories("${ncnn_DIR}/${TARGET_ARCH}/include/ncnn")
     find_library(NCNN_LIB NAMES ncnn libncnn PATHS "${ncnn_DIR}/${TARGET_ARCH}/lib")
 endif ()
 
