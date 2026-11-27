@@ -160,7 +160,7 @@ public final class VideoUpscaleProcessor {
                 batchCount++;
 
                 if (batchCount >= BATCH_SIZE) {
-                    processedFrames += processBatch(realsr, model, inputFrames, outputFrames,
+                    processedFrames += processBatch(realsr, model, modelScale, inputFrames, outputFrames,
                             encoderInput, modelLog, listener, processedFrames, estimatedFrames);
                     batchCount = 0;
                 }
@@ -168,7 +168,7 @@ public final class VideoUpscaleProcessor {
 
             checkCancelled();
             if (batchCount > 0) {
-                processedFrames += processBatch(realsr, model, inputFrames, outputFrames,
+                processedFrames += processBatch(realsr, model, modelScale, inputFrames, outputFrames,
                         encoderInput, modelLog, listener, processedFrames, estimatedFrames);
             }
 
