@@ -145,10 +145,8 @@ static std::vector<int> parse_optarg_int_array(const char *optarg) {
 
 #endif // _WIN32
 
-// ncnn
-#include "cpu.h"
-#include "gpu.h"
-#include "platform.h"
+// Public NCNN API used by this resize CLI (Mat and resize_* functions).
+#include "mat.h"
 
 #include "filesystem_utils.h"
 #include "image_processor.h"
