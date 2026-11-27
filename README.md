@@ -48,6 +48,7 @@ The APK bundles the full practical Real-ESRGAN general-image set plus a photo re
 | Model | Native scale | Recommended use |
 |---|---:|---|
 | RealESRGAN x4plus | 4× | General real-world photographs; stronger perceptual detail reconstruction. |
+| RealESRGAN x4plus → 3× output | 3× final | Runs the 4× model, then downsamples to 3× with Lanczos. This is an output-scale preset, not a separate x3 checkpoint. |
 | RealESRGAN x2plus | 2× | General photographs when a native 2× result is preferred. |
 | RealESRNet x4plus | 4× | MSE-trained alternative with smoother, less aggressively sharpened output. |
 | RealESRGAN General v3 | 4× | Compact general-scene model; useful on varied and compressed photographs. |
@@ -69,7 +70,7 @@ Video model choices:
 - 4xNomos8kSC — realistic-photo restoration.
 - AnimeVideo-v3 — the dedicated compact animation-video model, with native 2×, 3× and 4× weights.
 
-For the 4× photo models, the app can encode 2× or 3× output by Lanczos-downscaling the AI result. AnimeVideo-v3 uses its matching native scale weights. RealESRGAN's video model is specifically trained for animation; the realistic-footage choices are image-restoration models applied frame-by-frame, not a temporal video-restoration network. Fast motion or fine textures can therefore show frame-to-frame shimmer.
+For the 4× photo models, the app can encode 2× or 3× output by Lanczos-downscaling the AI result. The photo screen also provides a 3× output preset using RealESRGAN x4plus followed by Lanczos downscaling. AnimeVideo-v3 uses its matching native x2/x3/x4 weights. RealESRGAN's video model is specifically trained for animation; the realistic-footage choices are image-restoration models applied frame-by-frame, not a temporal video-restoration network. Fast motion or fine textures can therefore show frame-to-frame shimmer.
 
 The build bundles FFmpeg 8.1.2 with libx264. The FFmpeg runtime is GPL-2.0-or-later, and the Actions workflow publishes its corresponding FFmpeg/x264 source archive beside the APK artifact.
 
