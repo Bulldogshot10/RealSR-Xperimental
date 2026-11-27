@@ -114,11 +114,19 @@ jobs:
           chmod +x ./gradlew
           ./gradlew --no-daemon clean assembleDebug --stacktrace
 
+      - name: Verify debug APK output
+        working-directory: RealSR-NCNN-Android-GUI
+        shell: bash
+        run: |
+          set -euo pipefail
+          find app/build/outputs/apk/debug -maxdepth 1 -type f -name '*.apk' -print -exec ls -lh {} \;
+          compgen -G "app/build/outputs/apk/debug/*.apk" > /dev/null
+
       - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
           name: RealSR-Xperimental-photo-models-debug-${{ github.sha }}
-          path: app/build/outputs/apk/debug/*.apk
+          path: RealSR-NCNN-Android-GUI/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 30
 
