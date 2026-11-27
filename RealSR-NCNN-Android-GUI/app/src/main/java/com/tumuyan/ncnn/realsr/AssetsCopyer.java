@@ -92,6 +92,13 @@ public class AssetsCopyer {
             os.flush();
             os.close();
             os = null;
+
+            if (isExecutableAsset(file.getName())) {
+                boolean executable = file.setExecutable(true, true);
+                if (!executable && !file.canExecute()) {
+                    throw new IOException("Cannot mark runtime executable: " + fileName);
+                }
+            }
             Log.d(TAG, "copyed file: " + fileName);
         } catch (FileNotFoundException e) {
             // TODO Auto-generated catch block
@@ -99,6 +106,14 @@ public class AssetsCopyer {
             bRet = false;
         }
         return bRet;
+    }
+
+    private static boolean isExecutableAsset(String name) {
+        return "ffmpeg".equals(name)
+                || "ffprobe".equals(name)
+                || "Anime4k".equals(name)
+                || "magick".equals(name)
+                || name.endsWith("-ncnn");
     }
 
     private static void checkFolderExists(String path) {
