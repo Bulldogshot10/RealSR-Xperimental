@@ -98,10 +98,16 @@ jobs:
           cp "$(find_model_file realesrgan-x4plus.bin)" "$ASSET_ROOT/models-Real-ESRGAN/x4.bin"
           cp "$(find_model_file realesrgan-x4plus.param)" "$ASSET_ROOT/models-Real-ESRGAN/x4.param"
 
-          # RealESRNet x4plus: MSE-trained and smoother than GAN x4plus.
-          mkdir -p "$ASSET_ROOT/models-RealESRNet-x4plus"
-          cp "$(find_model_file realesrnet-x4plus.bin)" "$ASSET_ROOT/models-RealESRNet-x4plus/x4.bin"
-          cp "$(find_model_file realesrnet-x4plus.param)" "$ASSET_ROOT/models-RealESRNet-x4plus/x4.param"
+          # RealESRNet x4plus: NCNN pair converted from the upstream MSE-trained model.
+          # The official Linux release ZIP does not ship this model pair.
+          REALSRNET_DIR="$ASSET_ROOT/models-RealESRNet-x4plus"
+          mkdir -p "$REALSRNET_DIR"
+          curl --fail --location --retry 3 --retry-delay 2 \
+            "https://raw.githubusercontent.com/specializeddevel/image_enhancer_fx_gui/main/models/realesrnet-x4plus.bin" \
+            -o "$REALSRNET_DIR/x4.bin"
+          curl --fail --location --retry 3 --retry-delay 2 \
+            "https://raw.githubusercontent.com/specializeddevel/image_enhancer_fx_gui/main/models/realesrnet-x4plus.param" \
+            -o "$REALSRNET_DIR/x4.param"
 
           # Official AnimeVideo-v3 provides native 2x, 3x and 4x NCNN weights.
           ANIME_VIDEO_DIR="$ASSET_ROOT/models-Real-ESRGAN-AnimeVideo-v3"
@@ -141,12 +147,13 @@ jobs:
           Real-ESRGAN model bundle:
           - RealESRGAN_x4plus (official NCNN release; BSD-3-Clause)
           - RealESRGAN_x2plus (NCNN conversion of official weights; BSD-3-Clause)
-          - RealESRNet_x4plus (official NCNN release; BSD-3-Clause; MSE/smoother output)
+          - RealESRNet_x4plus (NCNN conversion of upstream MSE weights; see source repository)
           - realesr-general-x4v3 (compact general-scene model)
           - 4xNomos8kSC (Phhofm; CC BY 4.0)
           - realesr-animevideov3 x2/x3/x4 (official NCNN release; anime video)
           Sources: https://github.com/xinntao/Real-ESRGAN
                    https://huggingface.co/Hibernake/RealESRGAN_x2plus
+                   https://github.com/specializeddevel/image_enhancer_fx_gui/tree/main/models
                    https://github.com/Phhofm/models/tree/main/4xNomos8kSC
           EOF
 
