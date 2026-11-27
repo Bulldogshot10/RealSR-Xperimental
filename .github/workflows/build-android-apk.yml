@@ -156,7 +156,105 @@ jobs:
             test -s "$ANIME_VIDEO_DIR/x${scale}.param"
           done
 
+          # Add additional realistic-photo NCNN conversions.
+          REALISTIC_RELEASE="https://github.com/TNTwise/Universal-NCNN-Upscaler/releases/download/Realistic"
+          REALISTIC_STAGE="$RUNNER_TEMP/realsr-realistic-models"
+          mkdir -p "$REALISTIC_STAGE"
+
+          install_single_realistic_model() {
+            local archive="$1"
+            local model_id="$2"
+            local work="$REALISTIC_STAGE/$model_id"
+            mkdir -p "$work"
+            curl --fail --location --retry 3 --retry-delay 2 \
+              "$REALISTIC_RELEASE/$archive" -o "$work/model.zip"
+            unzip -q -o "$work/model.zip" -d "$work/unpacked"
+
+            mapfile -t bins < <(find "$work/unpacked" -type f -iname '*.bin' | sort)
+            if [ "${#bins[@]}" -ne 1 ]; then
+              echo "Expected exactly one NCNN .bin in $archive, found ${#bins[@]}" >&2
+              find "$work/unpacked" -type f | sort >&2
+              exit 1
+            fi
+            local bin="${bins[0]}"
+            local param="${bin%.*}.param"
+            if [ ! -s "$param" ]; then
+              echo "Missing .param companion for $bin" >&2
+              find "$work/unpacked" -type f | sort >&2
+              exit 1
+            fi
+
+            local target="$ASSET_ROOT/models-$model_id"
+            mkdir -p "$target"
+            cp "$bin" "$target/x4.bin"
+            cp "$param" "$target/x4.param"
+            test -s "$target/x4.bin"
+            test -s "$target/x4.param"
+            echo "Installed $model_id ($(stat -c%s "$target/x4.bin") bytes)"
+          }
+
+          install_single_realistic_model "4xLSDIR.zip" "4xLSDIR"
+          install_single_realistic_model "4xLSDIRPlus.zip" "4xLSDIRPlus"
+          install_single_realistic_model "4xLSDIRPlusC.zip" "4xLSDIRPlusC"
+          install_single_realistic_model "4xLSDIRPlusN.zip" "4xLSDIRPlusN"
+          install_single_realistic_model "4xLSDIRPlusR.zip" "4xLSDIRPlusR"
+          install_single_realistic_model "4x_NMKD-Siax.zip" "4x_NMKD-Siax"
+
+          # The ClearReality archive can contain normal and Soft model variants.
+          CLEAR_WORK="$REALISTIC_STAGE/ClearReality4x"
+          mkdir -p "$CLEAR_WORK/unpacked"
+          curl --fail --location --retry 3 --retry-delay 2 \
+            "$REALISTIC_RELEASE/ClearReality4x.zip" -o "$CLEAR_WORK/model.zip"
+          unzip -q -o "$CLEAR_WORK/model.zip" -d "$CLEAR_WORK/unpacked"
+          mapfile -t clear_bins < <(find "$CLEAR_WORK/unpacked" -type f -iname '*.bin' | sort)
+          if [ "${#clear_bins[@]}" -lt 1 ]; then
+            echo "ClearReality archive contains no NCNN .bin files" >&2
+            find "$CLEAR_WORK/unpacked" -type f | sort >&2
+            exit 1
+          fi
+          for bin in "${clear_bins[@]}"; do
+            param="${bin%.*}.param"
+            if [ ! -s "$param" ]; then
+              echo "Missing .param companion for ClearReality model: $bin" >&2
+              exit 1
+            fi
+            base="$(basename "$bin" .bin)"
+            if [[ "$base" =~ [Ss]oft ]]; then
+              model_id="ClearRealityV1-Soft"
+            else
+              model_id="ClearRealityV1"
+            fi
+            target="$ASSET_ROOT/models-$model_id"
+            mkdir -p "$target"
+            cp "$bin" "$target/x4.bin"
+            cp "$param" "$target/x4.param"
+            echo "Installed $model_id from $(basename "$bin") ($(stat -c%s "$target/x4.bin") bytes)"
+          done
+
+          for model_id in 4xLSDIR 4xLSDIRPlus 4xLSDIRPlusC 4xLSDIRPlusN 4xLSDIRPlusR 4x_NMKD-Siax ClearRealityV1; do
+            test -s "$ASSET_ROOT/models-$model_id/x4.bin"
+            test -s "$ASSET_ROOT/models-$model_id/x4.param"
+          done
+          if [ -d "$ASSET_ROOT/models-ClearRealityV1-Soft" ]; then
+            test -s "$ASSET_ROOT/models-ClearRealityV1-Soft/x4.bin"
+            test -s "$ASSET_ROOT/models-ClearRealityV1-Soft/x4.param"
+          fi
+
           cat > "$ASSET_ROOT/PHOTO_MODELS.txt" <<'EOF'
+          Photo and video model bundle:
+          - RealESRGAN_x4plus and RealESRGAN_x2plus; RealESRNet_x4plus; general-x4v3.
+          - 4xNomos8kSC (Phhofm; CC BY 4.0).
+          - 4xLSDIR, 4xLSDIRPlus, 4xLSDIRPlusC, 4xLSDIRPlusN, 4xLSDIRPlusR (Helaman; CC BY 4.0).
+          - 4x NMKD Siax CX (NMKD; WTFPL).
+          - ClearRealityV1 and ClearRealityV1-Soft (Kim2091; CC BY-NC-SA 4.0; non-commercial).
+          - realesr-animevideov3 x2/x3/x4 (official NCNN release; animation video).
+          Realistic NCNN bundle: https://github.com/TNTwise/Universal-NCNN-Upscaler/releases/tag/Realistic
+          Model records and credits: https://openmodeldb.info/
+          Sources: https://github.com/xinntao/Real-ESRGAN
+                   https://huggingface.co/Hibernake/RealESRGAN_x2plus
+                   https://github.com/specializeddevel/image_enhancer_fx_gui/tree/main/models
+                   https://github.com/Phhofm/models/tree/main/4xNomos8kSC
+          EOF
           Real-ESRGAN model bundle:
           - RealESRGAN_x4plus (official NCNN release; BSD-3-Clause)
           - RealESRGAN_x2plus (NCNN conversion of official weights; BSD-3-Clause)
