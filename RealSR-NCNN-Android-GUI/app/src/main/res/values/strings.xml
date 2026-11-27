@@ -292,6 +292,7 @@ Even if this feature is disabled, you can still select multiple images from othe
     <string name="video_permission_required">Storage permission is required to save the upscaled video.</string>
     <string-array name="video_model_options">
         <item>RealESRGAN x4plus — General Photo</item>
+        <item>RealESRGAN x2plus — Native 2x General</item>
         <item>RealESRGAN General v3 — General / Compressed Video</item>
         <item>RealESRNet x4plus — Softer Detail</item>
         <item>Nomos8kSC — Realistic Photo</item>
