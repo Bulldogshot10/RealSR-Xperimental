@@ -799,14 +799,22 @@ int main(int argc, char **argv)
             return -1;
     }
 
-    int prepadding = 0;
-
-    if (model.find(PATHSTR("models")) != path_t::npos) {
-        prepadding = 10;
-    } else {
-        fprintf(stderr, "unknown model dir type\n");
+    // Accept model paths independently of their directory name. The loader
+    // below supports both a model folder (x2/x4.bin + .param) and a direct
+    // model .bin path. Requiring the literal word "models" rejected valid
+    // absolute/custom paths before the actual model files were checked.
+    if (model.empty()) {
+        fprintf(stderr, "model path is empty; use -m <model-folder-or-bin-path>\n");
         return -1;
     }
+
+#if _WIN32
+    fwprintf(stderr, L"Model path: %ls\n", model.c_str());
+#else
+    fprintf(stderr, "Model path: %s\n", model.c_str());
+#endif
+
+    int prepadding = 10;
 
     std::cout << "build time: " << __DATE__ << " " << __TIME__ << std::endl;
 
