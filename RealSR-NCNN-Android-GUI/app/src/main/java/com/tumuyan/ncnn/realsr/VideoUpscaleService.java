@@ -33,6 +33,7 @@ public class VideoUpscaleService extends Service {
     public static final String EXTRA_OUTPUT_PATH = "output_path";
     public static final String EXTRA_MODEL_FOLDER = "model_folder";
     public static final String EXTRA_OUTPUT_SCALE = "output_scale";
+    public static final String EXTRA_MODEL_SCALE = "model_scale";
 
     private static final String CHANNEL_ID = "video_upscale";
     private static final int NOTIFICATION_ID = 42;
@@ -91,6 +92,7 @@ public class VideoUpscaleService extends Service {
             outputPath = intent.getStringExtra(EXTRA_OUTPUT_PATH);
             String modelFolder = intent.getStringExtra(EXTRA_MODEL_FOLDER);
             int outputScale = intent.getIntExtra(EXTRA_OUTPUT_SCALE, 4);
+            int modelScale = intent.getIntExtra(EXTRA_MODEL_SCALE, 4);
             if (inputUri == null || outputPath == null || modelFolder == null) {
                 publish("Missing video upscale parameters.", true, false);
                 return START_NOT_STICKY;
@@ -102,7 +104,7 @@ public class VideoUpscaleService extends Service {
             cancelRequested = false;
             status = "Preparing video…";
             startForeground(NOTIFICATION_ID, buildNotification(status, true));
-            executor.execute(() -> runUpscale(inputUri, outputPath, modelFolder, outputScale, startId));
+            executor.execute(() -> runUpscale(inputUri, outputPath, modelFolder, outputScale, modelScale, startId));
         }
         return START_NOT_STICKY;
     }
@@ -129,7 +131,7 @@ public class VideoUpscaleService extends Service {
     }
 
     private void runUpscale(String inputUri, String destination, String modelFolder,
-                            int outputScale, int startId) {
+                            int outputScale, int modelScale, int startId) {
         File copiedInput = null;
         try {
             copiedInput = copyInputVideo(Uri.parse(inputUri));
@@ -140,7 +142,7 @@ public class VideoUpscaleService extends Service {
             File outputFile = new File(destination);
             VideoUpscaleProcessor engine = new VideoUpscaleProcessor(new File(getCacheDir(), "realsr"));
             processor = engine;
-            engine.upscale(copiedInput, outputFile, modelFolder, outputScale,
+            engine.upscale(copiedInput, outputFile, modelFolder, outputScale, modelScale,
                     (message, processedFrames, estimatedFrames) -> {
                         status = message;
                         updateProgressNotification(message);
