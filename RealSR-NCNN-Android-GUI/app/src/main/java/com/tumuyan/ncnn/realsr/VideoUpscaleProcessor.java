@@ -78,6 +78,10 @@ public final class VideoUpscaleProcessor {
         if (!ffmpeg.isFile() || !ffprobe.isFile() || !realsr.isFile()) {
             throw new IOException("Video runtime is incomplete. FFmpeg or realsr-ncnn is missing.");
         }
+        ensureExecutable(ffmpeg);
+        ensureExecutable(ffprobe);
+        ensureExecutable(realsr);
+
         String modelScaleName = "x" + modelScale;
         if (!new File(model, modelScaleName + ".bin").isFile()
                 || !new File(model, modelScaleName + ".param").isFile()) {
@@ -399,6 +403,18 @@ public final class VideoUpscaleProcessor {
     private static int countPngFiles(File directory) {
         File[] files = directory.listFiles((dir, name) -> name.toLowerCase(Locale.ROOT).endsWith(".png"));
         return files == null ? 0 : files.length;
+    }
+
+    private static void ensureExecutable(File executable) throws IOException {
+        if (!executable.isFile()) {
+            throw new IOException("Runtime executable is missing: " + executable.getAbsolutePath());
+        }
+        if (!executable.canExecute() && !executable.setExecutable(true, true)) {
+            throw new IOException("Cannot set executable permission: " + executable.getAbsolutePath());
+        }
+        if (!executable.canExecute()) {
+            throw new IOException("Runtime binary is not executable: " + executable.getAbsolutePath());
+        }
     }
 
     private void configureEnvironment(ProcessBuilder builder) {
