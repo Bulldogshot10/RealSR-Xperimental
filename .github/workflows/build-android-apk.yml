@@ -7,6 +7,9 @@ on:
     paths:
       - "RealSR-NCNN-Android-GUI/**"
       - "RealSR-NCNN-Android-CLI/RealSR/**"
+      - "RealSR-NCNN-Android-CLI/Resize/**"
+      - "RealSR-NCNN-Android-CLI/CMake/**"
+      - "RealSR-NCNN-Android-CLI/common/**"
       - ".github/workflows/build-android-apk.yml"
   workflow_dispatch:
 
@@ -186,6 +189,50 @@ jobs:
           sudo apt-get install -y autoconf automake libtool pkg-config nasm yasm
           echo "ANDROID_SDK_HOME=$ANDROID_HOME" >> "$GITHUB_ENV"
           echo "ANDROID_NDK_HOME=$ANDROID_HOME/ndk/27.2.12479018" >> "$GITHUB_ENV"
+
+      - name: Download OpenCV and libwebp sources for Resize CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p 3rdparty
+          OPENCV_ZIP="$RUNNER_TEMP/opencv-4.11.0-android-sdk.zip"
+          curl --fail --location --retry 3 --retry-delay 2 \
+            "https://github.com/opencv/opencv/releases/download/4.11.0/opencv-4.11.0-android-sdk.zip" \
+            -o "$OPENCV_ZIP"
+          echo "fab645f6b42e4f02ed43e57191cab37b00b861d13191afa34d68fc9f3d8ff763  $OPENCV_ZIP" | sha256sum --check
+          unzip -q -o "$OPENCV_ZIP" -d 3rdparty
+          test -f 3rdparty/OpenCV-android-sdk/sdk/native/jni/OpenCVConfig.cmake
+
+          git clone --depth 1 --branch v1.6.0 \
+            https://github.com/webmproject/libwebp.git 3rdparty/libwebp
+          test -f 3rdparty/libwebp/CMakeLists.txt
+
+      - name: Build fork Resize CLI with Perfect Pixel support
+        shell: bash
+        run: |
+          set -euo pipefail
+          JNI_DIR="$GITHUB_WORKSPACE/RealSR-NCNN-Android-CLI/Resize/src/main/jni"
+          BUILD_DIR="$RUNNER_TEMP/resize-ncnn-android-build"
+          OUTPUT_DIR="$RUNNER_TEMP/resize-ncnn-android-output"
+          ASSET_ROOT="$GITHUB_WORKSPACE/RealSR-NCNN-Android-GUI/app/src/main/assets/realsr"
+          mkdir -p "$OUTPUT_DIR"
+
+          cmake -S "$JNI_DIR" -B "$BUILD_DIR" \
+            -DCMAKE_TOOLCHAIN_FILE="$ANDROID_NDK_HOME/build/cmake/android.toolchain.cmake" \
+            -DANDROID_ABI=arm64-v8a \
+            -DANDROID_PLATFORM=android-24 \
+            -DANDROID_STL=c++_shared \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="$OUTPUT_DIR"
+
+          cmake --build "$BUILD_DIR" --parallel 2
+          test -s "$OUTPUT_DIR/resize-ncnn"
+          cp "$OUTPUT_DIR/resize-ncnn" "$ASSET_ROOT/resize-ncnn"
+          chmod 755 "$ASSET_ROOT/resize-ncnn"
+
+          echo "Built fork Resize CLI:"
+          file "$ASSET_ROOT/resize-ncnn"
+          "$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin/llvm-readelf" -d "$ASSET_ROOT/resize-ncnn" | grep NEEDED || true
 
       - name: Checkout FFmpeg Android builder
         shell: bash
