@@ -1,4 +1,5 @@
 name: Build My RealSR Android APK
+# Maintained by Bulldogshot10; builds this fork's photo-focused Android APK.
 
 on:
   push:
