@@ -43,12 +43,11 @@ RealSR-NCNN-Android-GUI could load extra models from sdcard automatily in ver 1.
 
 ### Photo / realistic-image presets
 
-The Android photo-focused build includes three NCNN Real-ESRGAN options:
+The Android photo-focused build includes two NCNN Real-ESRGAN models:
 
 | Preset | Best use |
 |---|---|
-| RealESRGAN x4plus | General real-world images and mixed photo content; a strong general-purpose 4x baseline. |
-| RealESRGAN General v3 | General scenes; a lighter general-purpose 4x option. |
+| RealESRGAN General v3 | General real-world scenes; a compact 4x model. |
 | 4xNomos8kSC | Realistic photographs; photo-trained 4x restoration intended to handle compression and mild blur. |
 
 Anime-specific Real-ESRGAN model folders are omitted from this APK. Anime4K and Real-CUGAN remain available as separate algorithms.

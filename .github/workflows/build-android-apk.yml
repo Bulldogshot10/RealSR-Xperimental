@@ -3,9 +3,7 @@ name: Build My RealSR Android APK
 
 on:
   push:
-    branches:
-      - master
-      - main
+    branches: [master, main]
     paths:
       - "RealSR-NCNN-Android-GUI/**"
       - "RealSR-NCNN-Android-CLI/RealSR/**"
@@ -29,7 +27,6 @@ jobs:
     name: Build Android GUI APK
     runs-on: ubuntu-latest
     timeout-minutes: 45
-
     steps:
       - name: Checkout my fork
         uses: actions/checkout@v4
@@ -39,7 +36,7 @@ jobs:
           mkdir -p RealSR-NCNN-Android-GUI/app/src/main/assets
           mkdir -p 3rdparty/ncnn-android-vulkan-shared
 
-      - name: Download upstream runtime assets
+      - name: Download NCNN runtime and upstream app assets
         shell: bash
         run: |
           set -euo pipefail
@@ -48,26 +45,24 @@ jobs:
           unzip -q -o assets.zip -d RealSR-NCNN-Android-GUI/app/src/main/assets
           unzip -q -o ncnn-android-vulkan-shared.zip -d 3rdparty/ncnn-android-vulkan-shared
 
-      - name: Add realistic photo models
+          ASSET_ROOT="$GITHUB_WORKSPACE/RealSR-NCNN-Android-GUI/app/src/main/assets/realsr"
+          test -d "$ASSET_ROOT"
+          for runtime_file in realsr-ncnn realcugan-ncnn srmd-ncnn waifu2x-ncnn resize-ncnn; do
+            test -s "$ASSET_ROOT/$runtime_file"
+            chmod +x "$ASSET_ROOT/$runtime_file"
+          done
+          test -s "$ASSET_ROOT/libncnn.so"
+          test -s "$ASSET_ROOT/libc++_shared.so"
+
+      - name: Install photo-focused Real-ESRGAN models
         shell: bash
         run: |
           set -euo pipefail
           ASSET_ROOT="$GITHUB_WORKSPACE/RealSR-NCNN-Android-GUI/app/src/main/assets/realsr"
+          rm -rf "$ASSET_ROOT/models-Real-ESRGAN-anime" \
+                 "$ASSET_ROOT/models-Real-ESRGANv2-anime" \
+                 "$ASSET_ROOT/models-Real-ESRGANv3-anime"
 
-          # General-purpose Real-ESRGAN x4plus is supplied in the runtime asset pack.
-          test -s "$ASSET_ROOT/models-Real-ESRGAN/x4.bin"
-          test -s "$ASSET_ROOT/models-Real-ESRGAN/x4.param"
-
-          # Photo-trained Nomos8kSC.
-          mkdir -p "$ASSET_ROOT/models-ESRGAN-Nomos8kSC"
-          curl --fail --location --retry 3 --retry-delay 2 \
-            "$MODEL_BASE_URL/models-ESRGAN-Nomos8kSC/x4.bin" \
-            -o "$ASSET_ROOT/models-ESRGAN-Nomos8kSC/x4.bin"
-          curl --fail --location --retry 3 --retry-delay 2 \
-            "$MODEL_BASE_URL/models-ESRGAN-Nomos8kSC/x4.param" \
-            -o "$ASSET_ROOT/models-ESRGAN-Nomos8kSC/x4.param"
-
-          # Official Real-ESRGAN general-scene x4 v3 NCNN conversion.
           mkdir -p "$ASSET_ROOT/models-RealeSR-general-v3"
           curl --fail --location --retry 3 --retry-delay 2 \
             "$MODEL_BASE_URL/models-RealeSR-general-v3/x4.bin" \
@@ -76,17 +71,24 @@ jobs:
             "$MODEL_BASE_URL/models-RealeSR-general-v3/x4.param" \
             -o "$ASSET_ROOT/models-RealeSR-general-v3/x4.param"
 
-          test -s "$ASSET_ROOT/models-ESRGAN-Nomos8kSC/x4.bin"
-          test -s "$ASSET_ROOT/models-ESRGAN-Nomos8kSC/x4.param"
+          mkdir -p "$ASSET_ROOT/models-ESRGAN-Nomos8kSC"
+          curl --fail --location --retry 3 --retry-delay 2 \
+            "$MODEL_BASE_URL/models-ESRGAN-Nomos8kSC/x4.bin" \
+            -o "$ASSET_ROOT/models-ESRGAN-Nomos8kSC/x4.bin"
+          curl --fail --location --retry 3 --retry-delay 2 \
+            "$MODEL_BASE_URL/models-ESRGAN-Nomos8kSC/x4.param" \
+            -o "$ASSET_ROOT/models-ESRGAN-Nomos8kSC/x4.param"
+
           test -s "$ASSET_ROOT/models-RealeSR-general-v3/x4.bin"
           test -s "$ASSET_ROOT/models-RealeSR-general-v3/x4.param"
+          test -s "$ASSET_ROOT/models-ESRGAN-Nomos8kSC/x4.bin"
+          test -s "$ASSET_ROOT/models-ESRGAN-Nomos8kSC/x4.param"
 
           cat > "$ASSET_ROOT/PHOTO_MODELS.txt" <<'EOF'
-          Included photo/general models:
-          - RealESRGAN_x4plus: https://github.com/xinntao/Real-ESRGAN
+          Photo-focused models included in this build:
+          - realesr-general-x4v3 NCNN conversion: https://github.com/xinntao/Real-ESRGAN
           - 4xNomos8kSC: https://github.com/Phhofm/models/tree/main/4xNomos8kSC
             License: CC BY 4.0
-          - realesr-general-x4v3 NCNN conversion: https://github.com/xinntao/Real-ESRGAN
           EOF
 
       - name: Set up Java 17
@@ -106,13 +108,13 @@ jobs:
         run: |
           set -euo pipefail
           chmod +x ./gradlew
-          ./gradlew --no-daemon clean assembleDebug
+          ./gradlew --no-daemon clean assembleDebug --stacktrace
 
-      - name: Upload APK
+      - name: Upload debug APK
         uses: actions/upload-artifact@v4
         with:
-          name: RealSR-Xperimental-photo-models-${{ github.sha }}
-          path: RealSR-NCNN-Android-GUI/app/build/outputs/apk/debug/*.apk
+          name: RealSR-Xperimental-photo-models-debug-${{ github.sha }}
+          path: app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           retention-days: 30
 
@@ -122,4 +124,4 @@ jobs:
           echo "Repository: $GITHUB_REPOSITORY" >> "$GITHUB_STEP_SUMMARY"
           echo "Branch: $GITHUB_REF_NAME" >> "$GITHUB_STEP_SUMMARY"
           echo "Commit: $GITHUB_SHA" >> "$GITHUB_STEP_SUMMARY"
-          echo "APK output: RealSR-NCNN-Android-GUI/app/build/outputs/apk/debug/" >> "$GITHUB_STEP_SUMMARY"
+          echo "Expected APK: RealSR-NCNN-Android-GUI/app/build/outputs/apk/debug/" >> "$GITHUB_STEP_SUMMARY"
